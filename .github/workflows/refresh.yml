@@ -1,0 +1,32 @@
+name: Cookies doidepdut
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run refresh multi-thread + proxy
+        run: npm run refresh
+
+      - name: Commit updated cookies
+        run: |
+          git config --global user.name "GitHub Bot"
+          git config --global user.email "bot@github.com"
+          git add cookies.json
+          git commit -m "Auto refresh cookies at $(date)" || echo "No changes"
+          git push
